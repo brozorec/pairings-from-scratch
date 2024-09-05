@@ -96,15 +96,11 @@ impl<T: AbstractCoeff> Polynomial<T> {
 
 impl<T: AbstractCoeff> PartialEq for Polynomial<T> {
     fn eq(&self, other: &Self) -> bool {
-        if self.degree() != other.degree() { return false; }
+        if self.degree() != other.degree() {
+            return false;
+        }
 
         self.0.iter().zip(other.0.iter()).all(|(a, b)| *a == *b)
-    }
-}
-
-impl<T> FromIterator<T> for Polynomial<T> {
-    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
-        Self(iter.into_iter().collect())
     }
 }
 
@@ -126,6 +122,20 @@ impl<T: AbstractCoeff> Display for Polynomial<T> {
             }
         }
         Ok(())
+    }
+}
+
+impl<T> FromIterator<T> for Polynomial<T> {
+    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
+        Self(iter.into_iter().collect())
+    }
+}
+
+// instead of Polynomial::new(vec![F13::new(12), F13::new(4)])
+// just do Polynomial::from(vec![12, 4])
+impl<M: FiniteField> From<Vec<M::T>> for Polynomial<FieldElement<M>> {
+    fn from(value: Vec<M::T>) -> Self {
+        value.into_iter().map(|v| FieldElement::new(v)).collect()
     }
 }
 

@@ -14,18 +14,18 @@ impl EllipticCurve for TinyJJ {
     type ScalarField = Mod13;
 
     fn a() -> FieldElement<Self::BaseField> {
-        Polynomial::new(vec![F13::new(8)]).into()
+        Polynomial::from(vec![8]).into()
     }
 
     fn b() -> FieldElement<Self::BaseField> {
-        Polynomial::new(vec![F13::new(8)]).into()
+        Polynomial::from(vec![8]).into()
     }
 
     fn generator() -> AffinePoint<Self> {
         // 5*x^3 + 12*x^2 + 2*x + 8 and 5*x^2 + x
         AffinePoint::new_xy(
-            Polynomial::new(vec![F13::new(8), F13::new(2), F13::new(12), F13::new(5)]).into(),
-            Polynomial::new(vec![F13::zero(), F13::one(), F13::new(5)]).into(),
+            Polynomial::from(vec![8, 2, 12, 5]).into(),
+            Polynomial::from(vec![0, 1, 5]).into(),
         )
     }
 

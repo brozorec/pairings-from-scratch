@@ -1,6 +1,11 @@
 use num_traits::Pow;
 
-use crate::{elliptic_curve::{EllipticCurve, AffinePoint}, field_element::FieldElement, finite_field::{NonExtendedField, FiniteField}, curves::TinyJJ};
+use crate::{
+    curves::TinyJJ,
+    elliptic_curve::{AffinePoint, EllipticCurve},
+    field_element::FieldElement,
+    finite_field::{FiniteField, NonExtendedField},
+};
 
 pub fn linefunc<E: EllipticCurve>(
     p: AffinePoint<E>,
@@ -57,31 +62,33 @@ pub trait Pairing: EllipticCurve<ScalarField: NonExtendedField> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{curves::TinyJJ, elliptic_curve::EllipticCurve, fields::{F13_4, F13}, polynomial::Polynomial};
+    use crate::{
+        curves::TinyJJ, elliptic_curve::EllipticCurve, fields::F13_4, polynomial::Polynomial,
+    };
 
     #[test]
     fn test_pairing() {
         let p = AffinePoint::<TinyJJ>::new_xy(
-            Polynomial::new(vec![F13::new(8)]).into(),
-            Polynomial::new(vec![F13::new(8)]).into(),
+            Polynomial::from(vec![8]).into(),
+            Polynomial::from(vec![8]).into(),
         );
         let q = AffinePoint::<TinyJJ>::new_xy(
-            Polynomial::new(vec![F13::new(7), F13::zero(), F13::new(4)]).into(),
-            Polynomial::new(vec![F13::zero(), F13::new(10), F13::zero(), F13::new(5)]).into(),
+            Polynomial::from(vec![7, 0, 4]).into(),
+            Polynomial::from(vec![0, 10, 0, 5]).into(),
         );
-        let result: F13_4 = Polynomial::new(vec![F13::new(3), F13::new(7), F13::new(7), F13::new(6)]).into();
+        let result: F13_4 = Polynomial::from(vec![3, 7, 7, 6]).into();
         assert!(result == Pairing::pairing(p, q));
     }
 
     #[test]
     fn test_pairing_bilinearity() {
         let p = AffinePoint::<TinyJJ>::new_xy(
-            Polynomial::new(vec![F13::new(8)]).into(),
-            Polynomial::new(vec![F13::new(8)]).into(),
+            Polynomial::from(vec![8]).into(),
+            Polynomial::from(vec![8]).into(),
         );
         let q = AffinePoint::<TinyJJ>::new_xy(
-            Polynomial::new(vec![F13::new(7), F13::zero(), F13::new(4)]).into(),
-            Polynomial::new(vec![F13::zero(), F13::new(10), F13::zero(), F13::new(5)]).into(),
+            Polynomial::from(vec![7, 0, 4]).into(),
+            Polynomial::from(vec![0, 10, 0, 5]).into(),
         );
         assert!(Pairing::pairing(p.clone(), q.double()) == Pairing::pairing(p.double(), q));
     }
@@ -95,14 +102,32 @@ mod tests {
         let negtwo = TinyJJ::generator() * (TinyJJ::order() - 2);
         let negthree = TinyJJ::generator() * (TinyJJ::order() - 3);
 
-        assert_eq!(linefunc(one.clone(), two.clone(), one.clone()), F13_4::zero());
-        assert_eq!(linefunc(one.clone(), two.clone(), two.clone()), F13_4::zero());
-        assert_ne!(linefunc(one.clone(), two.clone(), three.clone()), F13_4::zero());
+        assert_eq!(
+            linefunc(one.clone(), two.clone(), one.clone()),
+            F13_4::zero()
+        );
+        assert_eq!(
+            linefunc(one.clone(), two.clone(), two.clone()),
+            F13_4::zero()
+        );
+        assert_ne!(
+            linefunc(one.clone(), two.clone(), three.clone()),
+            F13_4::zero()
+        );
         assert_eq!(linefunc(one.clone(), two.clone(), negthree), F13_4::zero());
-        assert_eq!(linefunc(one.clone(), negone.clone(), one.clone()), F13_4::zero());
-        assert_eq!(linefunc(one.clone(), negone.clone(), negone.clone()), F13_4::zero());
+        assert_eq!(
+            linefunc(one.clone(), negone.clone(), one.clone()),
+            F13_4::zero()
+        );
+        assert_eq!(
+            linefunc(one.clone(), negone.clone(), negone.clone()),
+            F13_4::zero()
+        );
         assert_ne!(linefunc(one.clone(), negone, two.clone()), F13_4::zero());
-        assert_eq!(linefunc(one.clone(), one.clone(), one.clone()), F13_4::zero());
+        assert_eq!(
+            linefunc(one.clone(), one.clone(), one.clone()),
+            F13_4::zero()
+        );
         assert_ne!(linefunc(one.clone(), one.clone(), two), F13_4::zero());
         assert_eq!(linefunc(one.clone(), one, negtwo), F13_4::zero());
     }

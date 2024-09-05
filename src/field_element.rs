@@ -143,18 +143,18 @@ mod tests {
 
     #[test]
     fn test_ext_finite_field_pow() {
-        let element: F13_2 = Polynomial::new(vec![F13::new(3)]).into();
-        let res: F13_2 = Polynomial::new(vec![F13::new(9)]).into();
+        let element: F13_2 = Polynomial::from(vec![3]).into();
+        let res: F13_2 = Polynomial::from(vec![9]).into();
         assert_eq!(element.pow::<Mod13>(5), res);
     }
 
     #[test]
     fn test_ext_finite_field_inverse() {
-        let ext_field_element: F13_2 = Polynomial::new(vec![F13::new(3), F13::new(5)]).into();
+        let ext_field_element: F13_2 = Polynomial::from(vec![3, 5]).into();
         let inverse = ext_field_element.inverse();
         assert_eq!(
             inverse.value,
-            Polynomial::new(vec![F13::new(6), F13::new(3)])
+            Polynomial::from(vec![6, 3])
         );
 
         // Multiply the element by its inverse and check if we get the identity element
@@ -165,8 +165,8 @@ mod tests {
 
     #[test]
     fn test_ext_finite_field_mul() {
-        let element1: F13_2 = Polynomial::new(vec![F13::new(7), F13::new(3)]).into();
-        let element2: F13_2 = Polynomial::new(vec![F13::new(5), F13::new(6)]).into();
+        let element1: F13_2 = Polynomial::from(vec![7, 3]).into();
+        let element2: F13_2 = Polynomial::from(vec![5, 6]).into();
 
         let product = element1 * element2;
         assert_eq!(

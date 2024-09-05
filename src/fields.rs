@@ -61,7 +61,7 @@ impl FiniteField for Mod13_2 {
     type T = Polynomial<F13>;
 
     fn modulus() -> Self::T {
-        Polynomial::new(vec![F13::new(2), F13::new(0), F13::new(1)])
+        Polynomial::from(vec![2, 0, 1])
     }
 
     fn zero() -> Self::T {
@@ -83,13 +83,7 @@ impl FiniteField for Mod13_4 {
     type T = Polynomial<F13>;
 
     fn modulus() -> Self::T {
-        Polynomial::new(vec![
-            F13::new(2),
-            F13::zero(),
-            F13::zero(),
-            F13::zero(),
-            F13::one(),
-        ])
+        Polynomial::from(vec![2, 0, 0, 0, 1])
     }
 
     fn zero() -> Self::T {

@@ -217,11 +217,11 @@ mod tests {
     #[test]
     fn test_ec_scalar_mul() {
         let p1 = AffinePoint::<TinyJJ>::new_xy(
-            Polynomial::new(vec![F13::new(8)]).into(),
-            Polynomial::new(vec![F13::new(8)]).into(),
+            Polynomial::from(vec![8]).into(),
+            Polynomial::from(vec![8]).into(),
         );
-        let x: F13_4 = Polynomial::new(vec![F13::new(7)]).into();
-        let y: F13_4 = Polynomial::new(vec![F13::new(2)]).into();
+        let x: F13_4 = Polynomial::from(vec![7]).into();
+        let y: F13_4 = Polynomial::from(vec![2]).into();
         let prod = p1.clone() * 123;
         assert!(prod.x().unwrap() == x);
         assert!(prod.y().unwrap() == y);
@@ -233,15 +233,15 @@ mod tests {
     #[test]
     fn test_ec_add() {
         let p1 = AffinePoint::<TinyJJ>::new_xy(
-            Polynomial::new(vec![F13::new(7)]).into(),
-            Polynomial::new(vec![F13::new(11)]).into(),
+            Polynomial::from(vec![7]).into(),
+            Polynomial::from(vec![11]).into(),
         );
         let p2 = AffinePoint::<TinyJJ>::new_xy(
-            Polynomial::new(vec![F13::new(12)]).into(),
-            Polynomial::new(vec![F13::new(8)]).into(),
+            Polynomial::from(vec![12]).into(),
+            Polynomial::from(vec![8]).into(),
         );
-        let x: F13_4 = Polynomial::new(vec![F13::new(11)]).into();
-        let y: F13_4 = Polynomial::new(vec![F13::new(7)]).into();
+        let x: F13_4 = Polynomial::from(vec![11]).into();
+        let y: F13_4 = Polynomial::from(vec![7]).into();
         let sum = p1 + p2;
         assert!(sum.x().unwrap() == x);
         assert!(sum.y().unwrap() == y);
@@ -250,12 +250,12 @@ mod tests {
     #[test]
     fn test_ec_neg() {
         let p1 = AffinePoint::<TinyJJ>::new_xy(
-            Polynomial::new(vec![F13::new(8)]).into(),
-            Polynomial::new(vec![F13::new(8)]).into(),
+            Polynomial::from(vec![8]).into(),
+            Polynomial::from(vec![8]).into(),
         );
         let neg = -p1;
-        let x: F13_4 = Polynomial::new(vec![F13::new(8)]).into();
-        let y: F13_4 = Polynomial::new(vec![F13::new(5)]).into();
+        let x: F13_4 = Polynomial::from(vec![8]).into();
+        let y: F13_4 = Polynomial::from(vec![5]).into();
         assert!(neg.x().unwrap() == x);
         assert!(neg.y().unwrap() == y);
     }
@@ -263,8 +263,8 @@ mod tests {
     #[test]
     fn test_ec_add_to_inf() {
         let p1 = AffinePoint::<TinyJJ>::new_xy(
-            Polynomial::new(vec![F13::new(8)]).into(),
-            Polynomial::new(vec![F13::new(8)]).into(),
+            Polynomial::from(vec![8]).into(),
+            Polynomial::from(vec![8]).into(),
         );
         let sum = p1.clone() + -p1;
         assert!(sum.is_inf());
@@ -273,11 +273,11 @@ mod tests {
     #[test]
     fn test_ec_double() {
         let p1 = AffinePoint::<TinyJJ>::new_xy(
-            Polynomial::new(vec![F13::new(7)]).into(),
-            Polynomial::new(vec![F13::new(11)]).into(),
+            Polynomial::from(vec![7]).into(),
+            Polynomial::from(vec![11]).into(),
         );
-        let x: F13_4 = Polynomial::new(vec![F13::new(8)]).into();
-        let y: F13_4 = Polynomial::new(vec![F13::new(5)]).into();
+        let x: F13_4 = Polynomial::from(vec![8]).into();
+        let y: F13_4 = Polynomial::from(vec![5]).into();
         let sum = p1.double();
         assert!(sum.x().unwrap() == x);
         assert!(sum.y().unwrap() == y);
@@ -292,11 +292,11 @@ mod tests {
     #[test]
     fn test_ec_trace_map() {
         let p1 = AffinePoint::<TinyJJ>::new_xy(
-            Polynomial::new(vec![F13::new(8)]).into(),
-            Polynomial::new(vec![F13::new(8)]).into(),
+            Polynomial::from(vec![8]).into(),
+            Polynomial::from(vec![8]).into(),
         );
-        let x: F13_4 = Polynomial::new(vec![F13::new(8)]).into();
-        let y: F13_4 = Polynomial::new(vec![F13::new(5)]).into();
+        let x: F13_4 = Polynomial::from(vec![8]).into();
+        let y: F13_4 = Polynomial::from(vec![5]).into();
         let tm = p1.trace_map();
         assert!(tm.x().unwrap() == x);
         assert!(tm.y().unwrap() == y);
