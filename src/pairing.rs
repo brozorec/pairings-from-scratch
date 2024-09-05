@@ -8,9 +8,9 @@ use crate::{
 };
 
 pub fn linefunc<E: EllipticCurve>(
-    p: AffinePoint<E>,
-    q: AffinePoint<E>,
-    t: AffinePoint<E>,
+    p: &AffinePoint<E>,
+    q: &AffinePoint<E>,
+    t: &AffinePoint<E>,
 ) -> FieldElement<E::BaseField> {
     // Infinity not allowed
     let (x1, y1) = p.xy().unwrap();
@@ -31,18 +31,29 @@ pub fn linefunc<E: EllipticCurve>(
 }
 
 pub trait Pairing: EllipticCurve<ScalarField: NonExtendedField> {
-    fn pairing(p: AffinePoint<Self>, q: AffinePoint<Self>) -> FieldElement<Self::BaseField> {
-        // TODO: check points are valid
+    fn is_valid_g1(p: &AffinePoint<Self>) -> bool {
+        let k = Self::ScalarField::from_uint(Self::embedding_degree()).unwrap();
+        p.trace_map() == p.clone() * k
+    }
+
+    fn is_valid_g2(q: &AffinePoint<Self>) -> bool {
+        q.trace_map().is_inf()
+    }
+
+    fn pairing(p: &AffinePoint<Self>, q: &AffinePoint<Self>) -> FieldElement<Self::BaseField> {
+        assert!(Self::is_valid_g1(p), "p is not a G1 point");
+        assert!(Self::is_valid_g2(q), "q is not a G1 point");
+
         let mut point = p.clone();
         let mut f = FieldElement::<Self::BaseField>::one();
         let bits = Self::ScalarField::to_bits_be(Self::r());
         for bit in bits.iter().rev().skip(1) {
-            let f_new = linefunc(point.clone(), point.clone(), q.clone());
+            let f_new = linefunc(&point, &point, &q);
             f = f.clone() * f * f_new;
             point = point.clone().double();
 
             if *bit == 1 {
-                let f_new = linefunc(point.clone(), p.clone(), q.clone());
+                let f_new = linefunc(&point, &p, &q);
                 f = f * f_new;
                 point = point + p.clone()
             }
@@ -77,7 +88,7 @@ mod tests {
             Polynomial::from(vec![0, 10, 0, 5]).into(),
         );
         let result: F13_4 = Polynomial::from(vec![3, 7, 7, 6]).into();
-        assert!(result == Pairing::pairing(p, q));
+        assert!(result == Pairing::pairing(&p, &q));
     }
 
     #[test]
@@ -90,7 +101,7 @@ mod tests {
             Polynomial::from(vec![7, 0, 4]).into(),
             Polynomial::from(vec![0, 10, 0, 5]).into(),
         );
-        assert!(Pairing::pairing(p.clone(), q.double()) == Pairing::pairing(p.double(), q));
+        assert!(Pairing::pairing(&p, &q.double()) == Pairing::pairing(&p.double(), &q));
     }
 
     #[test]
@@ -103,32 +114,32 @@ mod tests {
         let negthree = TinyJJ::generator() * (TinyJJ::order() - 3);
 
         assert_eq!(
-            linefunc(one.clone(), two.clone(), one.clone()),
+            linefunc(&one, &two, &one),
             F13_4::zero()
         );
         assert_eq!(
-            linefunc(one.clone(), two.clone(), two.clone()),
+            linefunc(&one, &two, &two),
             F13_4::zero()
         );
         assert_ne!(
-            linefunc(one.clone(), two.clone(), three.clone()),
+            linefunc(&one, &two, &three),
             F13_4::zero()
         );
-        assert_eq!(linefunc(one.clone(), two.clone(), negthree), F13_4::zero());
+        assert_eq!(linefunc(&one, &two, &negthree), F13_4::zero());
         assert_eq!(
-            linefunc(one.clone(), negone.clone(), one.clone()),
+            linefunc(&one, &negone, &one),
             F13_4::zero()
         );
         assert_eq!(
-            linefunc(one.clone(), negone.clone(), negone.clone()),
+            linefunc(&one, &negone, &negone),
             F13_4::zero()
         );
-        assert_ne!(linefunc(one.clone(), negone, two.clone()), F13_4::zero());
+        assert_ne!(linefunc(&one, &negone, &two), F13_4::zero());
         assert_eq!(
-            linefunc(one.clone(), one.clone(), one.clone()),
+            linefunc(&one, &one, &one),
             F13_4::zero()
         );
-        assert_ne!(linefunc(one.clone(), one.clone(), two), F13_4::zero());
-        assert_eq!(linefunc(one.clone(), one, negtwo), F13_4::zero());
+        assert_ne!(linefunc(&one, &one, &two), F13_4::zero());
+        assert_eq!(linefunc(&one, &one, &negtwo), F13_4::zero());
     }
 }

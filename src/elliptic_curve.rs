@@ -27,7 +27,7 @@ pub trait EllipticCurve: Clone + PartialEq {
     // this biggest cofactor of the order of the NON-extended curve
     fn r() -> <Self::ScalarField as FiniteField>::T;
 
-    fn pairing(p: AffinePoint<Self>, q: AffinePoint<Self>) -> FieldElement<Self::BaseField>
+    fn pairing(p: &AffinePoint<Self>, q: &AffinePoint<Self>) -> FieldElement<Self::BaseField>
     where
         Self: Pairing,
     {
@@ -43,12 +43,20 @@ pub enum AffinePoint<E: EllipticCurve> {
 
 impl<E: EllipticCurve> AffinePoint<E> {
     pub fn new_xy(x: FieldElement<E::BaseField>, y: FieldElement<E::BaseField>) -> Self {
-        // TODO: check they are valid, if not return Infinity
-        AffinePoint::XY(x, y)
+        // check coordinates are valid, if not return Infinity
+        if Self::is_on_curve(&x, &y) {
+            AffinePoint::XY(x, y)
+        } else {
+            Self::new_inf()
+        }
     }
 
     pub fn new_inf() -> Self {
         AffinePoint::Infinity
+    }
+
+    pub fn is_on_curve(x: &FieldElement<E::BaseField>, y: &FieldElement<E::BaseField>) -> bool {
+        y.clone() * y.clone()  == x.clone() * x.clone() * x.clone() + E::a() * x.clone() + E::b()
     }
 
     /// Returns the x and y coordinates of this affine point.
