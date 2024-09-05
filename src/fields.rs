@@ -4,46 +4,15 @@ use std::{
     str::FromStr,
 };
 
-use num::Integer;
 use num_bigint::BigInt;
 use num_traits::{FromPrimitive, One, ToPrimitive};
+use pairings_derive::polynomial_inverse;
 
 use crate::{
     field_element::FieldElement,
-    finite_field::{NonExtendedField, FiniteField},
+    finite_field::{FiniteField, NonExtendedField},
     polynomial::{AbstractCoeff, Polynomial},
 };
-
-//impl Inverse for i64 {
-//type Output = i64;
-
-//fn inverse(&self, modulus: &Self) -> Option<Self::Output> {
-//// TODO more cases when no inverse
-//if *self == 0 {
-//None
-//} else {
-//// xgcd
-//let mut r0 = *modulus;
-//let mut r1 = *self;
-//let mut t0 = 0;
-//let mut t1 = 1;
-
-//while r1 != 0 {
-//let quotient = r0.clone() / r1.clone();
-
-//let r2 = r0 - quotient.clone() * r1.clone();
-//r0 = r1;
-//r1 = r2;
-
-//let t2 = t0 - quotient * t1.clone();
-//t0 = t1;
-//t1 = t2;
-//}
-
-//Some(t0 % modulus)
-//}
-//}
-//}
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub struct Mod13;
@@ -61,10 +30,6 @@ impl FiniteField for Mod13 {
 
     fn zero() -> Self::T {
         0
-    }
-
-    fn reduce(value: Self::T) -> Self::T {
-        (Self::modulus() + value) % Self::modulus()
     }
 }
 
@@ -107,28 +72,8 @@ impl FiniteField for Mod13_2 {
         Polynomial::new(vec![F13::one()])
     }
 
-    fn inverse(value: &Self::T) -> Self::T {
-        let mut r0 = Self::modulus();
-        let mut r1 = value.clone();
-
-        let mut t0 = Self::zero();
-        let mut t1 = Self::one();
-
-        while !r1.is_zero() {
-            let quotient = r0.clone() / r1.clone();
-
-            let r2 = r0 - quotient.clone() * r1.clone();
-            r0 = r1;
-            r1 = r2;
-
-            let t2 = t0 - quotient * t1.clone();
-            t0 = t1;
-            t1 = t2;
-        }
-
-        let lead_inverse = r0.leading_coefficient().inverse();
-        t0 * lead_inverse
-    }
+    #[polynomial_inverse]
+    fn inverse(value: &Self::T) -> Self::T;
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
@@ -155,28 +100,8 @@ impl FiniteField for Mod13_4 {
         Polynomial::new(vec![F13::one()])
     }
 
-    fn inverse(value: &Self::T) -> Self::T {
-        let mut r0 = Self::modulus();
-        let mut r1 = value.clone();
-
-        let mut t0 = Self::zero();
-        let mut t1 = Self::one();
-
-        while !r1.is_zero() {
-            let quotient = r0.clone() / r1.clone();
-
-            let r2 = r0 - quotient.clone() * r1.clone();
-            r0 = r1;
-            r1 = r2;
-
-            let t2 = t0 - quotient * t1.clone();
-            t0 = t1;
-            t1 = t2;
-        }
-
-        let lead_inverse = r0.leading_coefficient().inverse();
-        t0 * lead_inverse
-    }
+    #[polynomial_inverse]
+    fn inverse(value: &Self::T) -> Self::T;
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
@@ -198,10 +123,6 @@ impl FiniteField for BN254 {
 
     fn zero() -> Self::T {
         BigInt::from_i64(0).unwrap()
-    }
-
-    fn reduce(value: Self::T) -> Self::T {
-        (Self::modulus() + value) % Self::modulus()
     }
 }
 

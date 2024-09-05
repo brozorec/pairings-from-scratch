@@ -1,7 +1,7 @@
 use core::fmt;
 use std::{
     fmt::{Debug, Display},
-    ops::{Add, Div, Mul, Neg, Rem, Sub, Shr, BitAnd},
+    ops::{Add, BitAnd, Div, Mul, Neg, Rem, Shr, Sub},
     usize,
 };
 
@@ -24,11 +24,10 @@ pub trait FiniteField: Copy + Eq {
     fn one() -> Self::T;
 
     fn reduce(value: Self::T) -> Self::T {
-        value % Self::modulus()
+        (Self::modulus() + value) % Self::modulus()
     }
 
-    // default implementation but when T is a polynomial,
-    // it needs to be a different one
+    // default implementation but when T is a polynomial, it must be a different one
     fn inverse(value: &Self::T) -> Self::T {
         let zero = Self::zero();
         // xgcd
@@ -53,7 +52,9 @@ pub trait FiniteField: Copy + Eq {
     }
 }
 
-pub trait NonExtendedField: FiniteField<T: Shr<usize, Output = Self::T> + BitAnd + Pow<usize, Output = Self::T>> {
+pub trait NonExtendedField:
+    FiniteField<T: Shr<usize, Output = Self::T> + BitAnd + Pow<usize, Output = Self::T>>
+{
     fn to_bits_be(s: Self::T) -> Vec<u8>;
 
     fn to_uint(s: Self::T) -> Option<usize>;

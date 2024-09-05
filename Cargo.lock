@@ -88,7 +88,16 @@ dependencies = [
  "num",
  "num-bigint",
  "num-traits",
+ "pairings-derive",
  "serde",
+]
+
+[[package]]
+name = "pairings-derive"
+version = "0.1.0"
+dependencies = [
+ "quote",
+ "syn",
 ]
 
 [[package]]
