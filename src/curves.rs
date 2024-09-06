@@ -1,9 +1,10 @@
 use crate::{
     elliptic_curve::{AffinePoint, EllipticCurve},
     field_element::FieldElement,
-    fields::{Mod13, Mod13_4, F13},
+    fields::{Mod13, Mod13_4},
     finite_field::FiniteField,
-    polynomial::Polynomial, pairing::Pairing,
+    pairing::Pairing,
+    polynomial::Polynomial,
 };
 
 #[derive(Debug, Clone, PartialEq)]

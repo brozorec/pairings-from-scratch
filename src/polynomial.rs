@@ -1,4 +1,3 @@
-use std::default;
 use std::fmt::{self, Display};
 use std::ops::{Add, Div, Mul, Neg, Rem, Sub};
 

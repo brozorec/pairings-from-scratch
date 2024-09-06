@@ -1,8 +1,7 @@
 use core::fmt;
 use std::{
     fmt::{Debug, Display},
-    ops::{Add, Div, Mul, Neg, Rem, Sub, Shr, BitAnd},
-    usize, mem,
+    ops::{Add, Div, Mul, Neg, Sub},
 };
 
 use crate::finite_field::{FiniteField, NonExtendedField};
@@ -124,11 +123,9 @@ mod tests {
     use num_traits::FromPrimitive;
 
     use crate::{
-        fields::{F13, F13_2, FBN254, Mod13, BN254},
+        fields::{Mod13, F13, F13_2, FBN254},
         polynomial::Polynomial,
     };
-
-    use super::*;
 
     #[test]
     fn test_finite_field_pow() {
@@ -152,10 +149,7 @@ mod tests {
     fn test_ext_finite_field_inverse() {
         let ext_field_element: F13_2 = Polynomial::from(vec![3, 5]).into();
         let inverse = ext_field_element.inverse();
-        assert_eq!(
-            inverse.value,
-            Polynomial::from(vec![6, 3])
-        );
+        assert_eq!(inverse.value, Polynomial::from(vec![6, 3]));
 
         // Multiply the element by its inverse and check if we get the identity element
         let product = inverse * ext_field_element;

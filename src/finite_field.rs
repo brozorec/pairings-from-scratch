@@ -1,6 +1,5 @@
-use core::fmt;
 use std::{
-    fmt::{Debug, Display},
+    fmt::Display,
     ops::{Add, BitAnd, Div, Mul, Neg, Rem, Shr, Sub},
     usize,
 };

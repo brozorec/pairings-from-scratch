@@ -7,7 +7,7 @@ use num_traits::Pow;
 
 use crate::{
     field_element::FieldElement,
-    finite_field::{NonExtendedField, FiniteField},
+    finite_field::{FiniteField, NonExtendedField},
     pairing::Pairing,
 };
 
@@ -56,7 +56,7 @@ impl<E: EllipticCurve> AffinePoint<E> {
     }
 
     pub fn is_on_curve(x: &FieldElement<E::BaseField>, y: &FieldElement<E::BaseField>) -> bool {
-        y.clone() * y.clone()  == x.clone() * x.clone() * x.clone() + E::a() * x.clone() + E::b()
+        y.clone() * y.clone() == x.clone() * x.clone() * x.clone() + E::a() * x.clone() + E::b()
     }
 
     /// Returns the x and y coordinates of this affine point.
@@ -114,8 +114,8 @@ impl<E: EllipticCurve> AffinePoint<E> {
                 let mut point = AffinePoint::XY(x.clone(), y.clone());
                 for i in 1..E::embedding_degree() {
                     let power = E::ScalarField::modulus().pow(i);
-                    let new_x = x.pow::<<E as EllipticCurve>::ScalarField>(power.clone());
-                    let new_y = y.pow::<<E as EllipticCurve>::ScalarField>(power);
+                    let new_x = x.pow::<E::ScalarField>(power.clone());
+                    let new_y = y.pow::<E::ScalarField>(power);
                     point = point + AffinePoint::new_xy(new_x, new_y);
                 }
                 point
@@ -202,11 +202,7 @@ pub fn get_all_points<E: EllipticCurve<ScalarField: NonExtendedField>>() -> Vec<
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        curves::TinyJJ,
-        fields::{Mod13, Mod13_4, F13, F13_4},
-        polynomial::Polynomial,
-    };
+    use crate::{curves::TinyJJ, fields::F13_4, polynomial::Polynomial};
 
     use super::*;
 

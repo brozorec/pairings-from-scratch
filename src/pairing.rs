@@ -1,7 +1,6 @@
 use num_traits::Pow;
 
 use crate::{
-    curves::TinyJJ,
     elliptic_curve::{AffinePoint, EllipticCurve},
     field_element::FieldElement,
     finite_field::{FiniteField, NonExtendedField},
@@ -113,32 +112,14 @@ mod tests {
         let negtwo = TinyJJ::generator() * (TinyJJ::order() - 2);
         let negthree = TinyJJ::generator() * (TinyJJ::order() - 3);
 
-        assert_eq!(
-            linefunc(&one, &two, &one),
-            F13_4::zero()
-        );
-        assert_eq!(
-            linefunc(&one, &two, &two),
-            F13_4::zero()
-        );
-        assert_ne!(
-            linefunc(&one, &two, &three),
-            F13_4::zero()
-        );
+        assert_eq!(linefunc(&one, &two, &one), F13_4::zero());
+        assert_eq!(linefunc(&one, &two, &two), F13_4::zero());
+        assert_ne!(linefunc(&one, &two, &three), F13_4::zero());
         assert_eq!(linefunc(&one, &two, &negthree), F13_4::zero());
-        assert_eq!(
-            linefunc(&one, &negone, &one),
-            F13_4::zero()
-        );
-        assert_eq!(
-            linefunc(&one, &negone, &negone),
-            F13_4::zero()
-        );
+        assert_eq!(linefunc(&one, &negone, &one), F13_4::zero());
+        assert_eq!(linefunc(&one, &negone, &negone), F13_4::zero());
         assert_ne!(linefunc(&one, &negone, &two), F13_4::zero());
-        assert_eq!(
-            linefunc(&one, &one, &one),
-            F13_4::zero()
-        );
+        assert_eq!(linefunc(&one, &one, &one), F13_4::zero());
         assert_ne!(linefunc(&one, &one, &two), F13_4::zero());
         assert_eq!(linefunc(&one, &one, &negtwo), F13_4::zero());
     }

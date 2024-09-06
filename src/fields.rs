@@ -1,17 +1,13 @@
-use std::{
-    char,
-    ops::{Neg, Sub},
-    str::FromStr,
-};
+use std::str::FromStr;
 
+use derive_lib::polynomial_inverse;
 use num_bigint::BigInt;
 use num_traits::{FromPrimitive, One, ToPrimitive};
-use pairings_derive::polynomial_inverse;
 
 use crate::{
     field_element::FieldElement,
     finite_field::{FiniteField, NonExtendedField},
-    polynomial::{AbstractCoeff, Polynomial},
+    polynomial::Polynomial,
 };
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
@@ -35,7 +31,7 @@ impl FiniteField for Mod13 {
 
 impl NonExtendedField for Mod13 {
     fn to_bits_be(s: i64) -> Vec<u8> {
-        let mut max = i64::BITS - s.leading_zeros();
+        let max = i64::BITS - s.leading_zeros();
 
         let mut res = vec![0u8; max.try_into().unwrap()];
         for i in (0..max).rev() {
@@ -99,9 +95,9 @@ impl FiniteField for Mod13_4 {
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
-pub struct BN254;
+pub struct ModBN254;
 
-impl FiniteField for BN254 {
+impl FiniteField for ModBN254 {
     type T = BigInt;
 
     fn modulus() -> Self::T {
@@ -120,7 +116,7 @@ impl FiniteField for BN254 {
     }
 }
 
-impl NonExtendedField for BN254 {
+impl NonExtendedField for ModBN254 {
     fn to_bits_be(s: BigInt) -> Vec<u8> {
         let max = s.bits();
 
@@ -144,4 +140,4 @@ impl NonExtendedField for BN254 {
 pub type F13 = FieldElement<Mod13>;
 pub type F13_2 = FieldElement<Mod13_2>;
 pub type F13_4 = FieldElement<Mod13_4>;
-pub type FBN254 = FieldElement<BN254>;
+pub type FBN254 = FieldElement<ModBN254>;
