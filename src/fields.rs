@@ -11,10 +11,10 @@ use crate::{
 };
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
-pub struct Mod13;
+pub struct Ff13;
 
-impl FiniteField for Mod13 {
-    type T = i64;
+impl FiniteField for Ff13 {
+    type T = i16;
 
     fn modulus() -> Self::T {
         13
@@ -29,9 +29,9 @@ impl FiniteField for Mod13 {
     }
 }
 
-impl NonExtendedField for Mod13 {
-    fn to_bits_be(s: i64) -> Vec<u8> {
-        let max = i64::BITS - s.leading_zeros();
+impl NonExtendedField for Ff13 {
+    fn to_bits_be(s: i16) -> Vec<u8> {
+        let max = i16::BITS - s.leading_zeros();
 
         let mut res = vec![0u8; max.try_into().unwrap()];
         for i in (0..max).rev() {
@@ -41,31 +41,31 @@ impl NonExtendedField for Mod13 {
         res
     }
 
-    fn to_uint(s: i64) -> Option<usize> {
+    fn to_uint(s: Self::T) -> Option<usize> {
         Some(s.try_into().unwrap())
     }
 
-    fn from_uint(s: usize) -> Option<i64> {
+    fn from_uint(s: usize) -> Option<Self::T> {
         Some(s.try_into().unwrap())
     }
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
-pub struct Mod13_2;
+pub struct Ff13_2;
 
-impl FiniteField for Mod13_2 {
-    type T = Polynomial<F13>;
+impl FiniteField for Ff13_2 {
+    type T = Polynomial<Fe13>;
 
     fn modulus() -> Self::T {
         Polynomial::from(vec![2, 0, 1])
     }
 
     fn zero() -> Self::T {
-        Polynomial::new(vec![F13::zero()])
+        Polynomial::new(vec![Fe13::zero()])
     }
 
     fn one() -> Self::T {
-        Polynomial::new(vec![F13::one()])
+        Polynomial::new(vec![Fe13::one()])
     }
 
     #[polynomial_inverse]
@@ -73,21 +73,21 @@ impl FiniteField for Mod13_2 {
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
-pub struct Mod13_4;
+pub struct Ff13_4;
 
-impl FiniteField for Mod13_4 {
-    type T = Polynomial<F13>;
+impl FiniteField for Ff13_4 {
+    type T = Polynomial<Fe13>;
 
     fn modulus() -> Self::T {
         Polynomial::from(vec![2, 0, 0, 0, 1])
     }
 
     fn zero() -> Self::T {
-        Polynomial::new(vec![F13::zero()])
+        Polynomial::new(vec![Fe13::zero()])
     }
 
     fn one() -> Self::T {
-        Polynomial::new(vec![F13::one()])
+        Polynomial::new(vec![Fe13::one()])
     }
 
     #[polynomial_inverse]
@@ -95,9 +95,9 @@ impl FiniteField for Mod13_4 {
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
-pub struct ModBN254;
+pub struct FfBn254;
 
-impl FiniteField for ModBN254 {
+impl FiniteField for FfBn254 {
     type T = BigInt;
 
     fn modulus() -> Self::T {
@@ -116,7 +116,7 @@ impl FiniteField for ModBN254 {
     }
 }
 
-impl NonExtendedField for ModBN254 {
+impl NonExtendedField for FfBn254 {
     fn to_bits_be(s: BigInt) -> Vec<u8> {
         let max = s.bits();
 
@@ -137,7 +137,7 @@ impl NonExtendedField for ModBN254 {
     }
 }
 
-pub type F13 = FieldElement<Mod13>;
-pub type F13_2 = FieldElement<Mod13_2>;
-pub type F13_4 = FieldElement<Mod13_4>;
-pub type FBN254 = FieldElement<ModBN254>;
+pub type Fe13 = FieldElement<Ff13>;
+pub type Fe13_2 = FieldElement<Ff13_2>;
+pub type Fe13_4 = FieldElement<Ff13_4>;
+pub type FeBn254 = FieldElement<FfBn254>;

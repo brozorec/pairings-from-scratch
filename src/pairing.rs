@@ -73,7 +73,7 @@ pub trait Pairing: EllipticCurve<ScalarField: NonExtendedField> {
 mod tests {
     use super::*;
     use crate::{
-        curves::TinyJJ, elliptic_curve::EllipticCurve, fields::F13_4, polynomial::Polynomial,
+        curves::TinyJJ, elliptic_curve::EllipticCurve, fields::Fe13_4, polynomial::Polynomial,
     };
 
     #[test]
@@ -86,7 +86,7 @@ mod tests {
             Polynomial::from(vec![7, 0, 4]).into(),
             Polynomial::from(vec![0, 10, 0, 5]).into(),
         );
-        let result: F13_4 = Polynomial::from(vec![3, 7, 7, 6]).into();
+        let result: Fe13_4 = Polynomial::from(vec![3, 7, 7, 6]).into();
         assert!(result == Pairing::pairing(&p, &q));
     }
 
@@ -112,15 +112,15 @@ mod tests {
         let negtwo = TinyJJ::generator() * (TinyJJ::order() - 2);
         let negthree = TinyJJ::generator() * (TinyJJ::order() - 3);
 
-        assert_eq!(linefunc(&one, &two, &one), F13_4::zero());
-        assert_eq!(linefunc(&one, &two, &two), F13_4::zero());
-        assert_ne!(linefunc(&one, &two, &three), F13_4::zero());
-        assert_eq!(linefunc(&one, &two, &negthree), F13_4::zero());
-        assert_eq!(linefunc(&one, &negone, &one), F13_4::zero());
-        assert_eq!(linefunc(&one, &negone, &negone), F13_4::zero());
-        assert_ne!(linefunc(&one, &negone, &two), F13_4::zero());
-        assert_eq!(linefunc(&one, &one, &one), F13_4::zero());
-        assert_ne!(linefunc(&one, &one, &two), F13_4::zero());
-        assert_eq!(linefunc(&one, &one, &negtwo), F13_4::zero());
+        assert_eq!(linefunc(&one, &two, &one), Fe13_4::zero());
+        assert_eq!(linefunc(&one, &two, &two), Fe13_4::zero());
+        assert_ne!(linefunc(&one, &two, &three), Fe13_4::zero());
+        assert_eq!(linefunc(&one, &two, &negthree), Fe13_4::zero());
+        assert_eq!(linefunc(&one, &negone, &one), Fe13_4::zero());
+        assert_eq!(linefunc(&one, &negone, &negone), Fe13_4::zero());
+        assert_ne!(linefunc(&one, &negone, &two), Fe13_4::zero());
+        assert_eq!(linefunc(&one, &one, &one), Fe13_4::zero());
+        assert_ne!(linefunc(&one, &one, &two), Fe13_4::zero());
+        assert_eq!(linefunc(&one, &one, &negtwo), Fe13_4::zero());
     }
 }

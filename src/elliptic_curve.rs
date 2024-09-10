@@ -202,7 +202,7 @@ pub fn get_all_points<E: EllipticCurve<ScalarField: NonExtendedField>>() -> Vec<
 
 #[cfg(test)]
 mod tests {
-    use crate::{curves::TinyJJ, fields::F13_4, polynomial::Polynomial};
+    use crate::{curves::TinyJJ, fields::Fe13_4, polynomial::Polynomial};
 
     use super::*;
 
@@ -224,8 +224,8 @@ mod tests {
             Polynomial::from(vec![8]).into(),
             Polynomial::from(vec![8]).into(),
         );
-        let x: F13_4 = Polynomial::from(vec![7]).into();
-        let y: F13_4 = Polynomial::from(vec![2]).into();
+        let x: Fe13_4 = Polynomial::from(vec![7]).into();
+        let y: Fe13_4 = Polynomial::from(vec![2]).into();
         let prod = p1.clone() * 123;
         assert!(prod.x().unwrap() == x);
         assert!(prod.y().unwrap() == y);
@@ -244,8 +244,8 @@ mod tests {
             Polynomial::from(vec![12]).into(),
             Polynomial::from(vec![8]).into(),
         );
-        let x: F13_4 = Polynomial::from(vec![11]).into();
-        let y: F13_4 = Polynomial::from(vec![7]).into();
+        let x: Fe13_4 = Polynomial::from(vec![11]).into();
+        let y: Fe13_4 = Polynomial::from(vec![7]).into();
         let sum = p1 + p2;
         assert!(sum.x().unwrap() == x);
         assert!(sum.y().unwrap() == y);
@@ -258,8 +258,8 @@ mod tests {
             Polynomial::from(vec![8]).into(),
         );
         let neg = -p1;
-        let x: F13_4 = Polynomial::from(vec![8]).into();
-        let y: F13_4 = Polynomial::from(vec![5]).into();
+        let x: Fe13_4 = Polynomial::from(vec![8]).into();
+        let y: Fe13_4 = Polynomial::from(vec![5]).into();
         assert!(neg.x().unwrap() == x);
         assert!(neg.y().unwrap() == y);
     }
@@ -280,8 +280,8 @@ mod tests {
             Polynomial::from(vec![7]).into(),
             Polynomial::from(vec![11]).into(),
         );
-        let x: F13_4 = Polynomial::from(vec![8]).into();
-        let y: F13_4 = Polynomial::from(vec![5]).into();
+        let x: Fe13_4 = Polynomial::from(vec![8]).into();
+        let y: Fe13_4 = Polynomial::from(vec![5]).into();
         let sum = p1.double();
         assert!(sum.x().unwrap() == x);
         assert!(sum.y().unwrap() == y);
@@ -299,8 +299,8 @@ mod tests {
             Polynomial::from(vec![8]).into(),
             Polynomial::from(vec![8]).into(),
         );
-        let x: F13_4 = Polynomial::from(vec![8]).into();
-        let y: F13_4 = Polynomial::from(vec![5]).into();
+        let x: Fe13_4 = Polynomial::from(vec![8]).into();
+        let y: Fe13_4 = Polynomial::from(vec![5]).into();
         let tm = p1.trace_map();
         assert!(tm.x().unwrap() == x);
         assert!(tm.y().unwrap() == y);

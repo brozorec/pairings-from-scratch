@@ -34,6 +34,7 @@ impl<T> AbstractCoeff for T where
 pub struct Polynomial<T>(Vec<T>);
 
 impl<T: AbstractCoeff> Polynomial<T> {
+    /// Creates a new polynomial, trimming trailing zeros.
     pub fn new(coeffs: Vec<T>) -> Self {
         let leading = coeffs.iter().rposition(|c| c != &T::default()).unwrap_or(0);
         let coefficients = &coeffs[..=leading];
@@ -44,14 +45,17 @@ impl<T: AbstractCoeff> Polynomial<T> {
         Self::new(coeffs.to_vec())
     }
 
+    /// Returns a slice of the polynomial's coefficients.
     pub fn coefficients(&self) -> &[T] {
         &self.0
     }
 
+    /// Returns the coefficient of the highest-degree term.
     pub fn leading_coefficient(&self) -> &T {
         &self.coefficients()[self.degree()]
     }
 
+    /// Calculates the degree of the polynomial.
     pub fn degree(&self) -> usize {
         self.coefficients()
             .iter()
@@ -59,16 +63,14 @@ impl<T: AbstractCoeff> Polynomial<T> {
             .unwrap_or(0)
     }
 
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-
+    /// Checks if the polynomial is zero.
     pub fn is_zero(&self) -> bool {
         self.coefficients()
             .iter()
             .all(|coeff| *coeff == T::default())
     }
 
+    /// Performs polynomial long division.
     fn div_mod(&self, divisor: &Self) -> (Self, Self) {
         let dividend = self.clone();
         let n = dividend.degree() + divisor.degree() + 1;
@@ -150,7 +152,7 @@ impl<T: AbstractCoeff> Add for Polynomial<T> {
     type Output = Polynomial<T>;
 
     fn add(self, other: Polynomial<T>) -> Polynomial<T> {
-        let len = self.len().max(other.len());
+        let len = self.degree().max(other.degree()) + 1;
         let mut coeffs = vec![T::default(); len];
 
         for (i, c) in self.coefficients().iter().enumerate() {
@@ -168,7 +170,7 @@ impl<T: AbstractCoeff> Sub for Polynomial<T> {
     type Output = Polynomial<T>;
 
     fn sub(self, other: Polynomial<T>) -> Polynomial<T> {
-        self + (-other)
+        self + -other
     }
 }
 

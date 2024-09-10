@@ -1,7 +1,7 @@
 use crate::{
     elliptic_curve::{AffinePoint, EllipticCurve},
     field_element::FieldElement,
-    fields::{Mod13, Mod13_4},
+    fields::{Ff13, Ff13_4},
     finite_field::FiniteField,
     pairing::Pairing,
     polynomial::Polynomial,
@@ -11,8 +11,8 @@ use crate::{
 pub struct TinyJJ;
 
 impl EllipticCurve for TinyJJ {
-    type BaseField = Mod13_4;
-    type ScalarField = Mod13;
+    type BaseField = Ff13_4;
+    type ScalarField = Ff13;
 
     fn a() -> FieldElement<Self::BaseField> {
         Polynomial::from(vec![8]).into()
