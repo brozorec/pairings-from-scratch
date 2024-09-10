@@ -132,7 +132,7 @@ impl<T> FromIterator<T> for Polynomial<T> {
     }
 }
 
-// instead of Polynomial::new(vec![F13::new(12), F13::new(4)])
+// instead of Polynomial::new(vec![Fe13::new(12), Fe13::new(4)])
 // just do Polynomial::from(vec![12, 4])
 impl<M: FiniteField> From<Vec<M::T>> for Polynomial<FieldElement<M>> {
     fn from(value: Vec<M::T>) -> Self {
@@ -226,5 +226,154 @@ impl<T: AbstractCoeff> Rem for Polynomial<T> {
 
     fn rem(self, other: Polynomial<T>) -> Polynomial<T> {
         self.div_mod(&other).1
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{finite_field::FiniteField, fields::Fe13};
+
+    use super::*;
+
+    #[test]
+    fn test_polynomial_creation() {
+        let p = Polynomial::new(vec![1, 2, 3]);
+        assert_eq!(p.coefficients(), &[1, 2, 3]);
+    }
+
+    #[test]
+    fn test_polynomial_degree() {
+        let p = Polynomial::new(vec![0, 0, 3, 0, 5]);
+        assert_eq!(p.degree(), 4);
+    }
+
+    #[test]
+    fn test_polynomial_leading_coefficient() {
+        let p = Polynomial::new(vec![0, 0, 3, 0, 5]);
+        assert_eq!(*p.leading_coefficient(), 5);
+    }
+
+    #[test]
+    fn test_polynomial_is_zero() {
+        let p = Polynomial::new(vec![0, 0, 3, 0, 5]);
+        assert_eq!(p.is_zero(), false);
+        let p = Polynomial::new(vec![Fe13::zero()]);
+        assert_eq!(p.is_zero(), true);
+    }
+
+    #[test]
+    fn test_polynomial_addition() {
+        let p1 = Polynomial::new(vec![1, 2, 3]); // Represents 1 + 2x + 3x^2
+        let p2 = Polynomial::new(vec![3, 4, 5]); // Represents 3 + 4x + 5x^2
+        let sum = p1.add(p2); // Should represent 4 + 6x + 8x^2
+        assert_eq!(sum.coefficients(), &[4, 6, 8]);
+    }
+
+    #[test]
+    fn test_polynomial_subtraction() {
+        let p1 = Polynomial::new(vec![5, 7, 9]); // Represents 5 + 7x + 9x^2
+        let p2 = Polynomial::new(vec![1, 2, 3]); // Represents 1 + 2x + 3x^2
+        let difference = p1.sub(p2); // Should represent 4 + 5x + 6x^2
+        assert_eq!(difference.coefficients(), &[4, 5, 6]);
+    }
+
+    #[test]
+    fn test_polynomial_multiplication() {
+        let p1 = Polynomial::new(vec![1, 2]); // Represents 1 + 2x
+        let p2 = Polynomial::new(vec![3, 4]); // Represents 3 + 4x
+        let product = p1.mul(p2); // Should represent 3 + 10x + 8x^2
+        assert_eq!(product.coefficients(), &[3, 10, 8]);
+    }
+
+    #[test]
+    fn test_polynomial_division() {
+        let dividend = Polynomial::new(vec![1, -3, 2]); // Represents 1 - 3x + 2x^2
+        let divisor = Polynomial::new(vec![1, -1]); // Represents 1 - x
+        let (quotient, remainder) = dividend.div_mod(&divisor); // Should represent quotient = 2x - 1, remainder = 1
+        assert_eq!(quotient.coefficients(), &[1, -2]);
+        assert_eq!(remainder.coefficients(), &[0]);
+    }
+
+    #[test]
+    fn test_polynomial_zero_division() {
+        let p1 = Polynomial::new(vec![1, 2, 3]);
+        let zero_poly = Polynomial::new(vec![0]);
+        let result = std::panic::catch_unwind(|| {
+            let _ = p1 / zero_poly;
+        });
+        assert!(result.is_err()); // Division by zero should panic or handle accordingly
+    }
+
+    #[test]
+    fn test_polynomial_zero_addition() {
+        let p1 = Polynomial::new(vec![1, 2, 3]);
+        let zero_poly = Polynomial::new(vec![0, 0, 0]);
+        let sum = p1.clone() + zero_poly; // Should result in p1 itself
+        assert_eq!(sum.coefficients(), p1.coefficients());
+    }
+
+    #[test]
+    fn test_polynomial_zero_subtraction() {
+        let p1 = Polynomial::new(vec![1, 2, 3]);
+        let zero_poly = Polynomial::new(vec![0, 0, 0]);
+        let difference = p1.clone() - zero_poly; // Should result in p1 itself
+        assert_eq!(difference.coefficients(), p1.coefficients());
+    }
+
+    #[test]
+    fn test_polynomial_addition_ff() {
+        let p1 = Polynomial::new(vec![Fe13::new(1), Fe13::new(2), Fe13::new(9)]); // Represents 1 + 2x + 3x^2
+        let p2 = Polynomial::new(vec![Fe13::new(3), Fe13::new(4), Fe13::new(5)]); // Represents 3 + 4x + 5x^2
+        let sum = p1 + p2; // Should represent 4 + 6x + 8x^2
+        assert_eq!(sum.coefficients(), &[Fe13::new(4), Fe13::new(6), Fe13::new(1)]);
+    }
+
+    #[test]
+    fn test_polynomial_multiplication_ff() {
+        let p1 = Polynomial::new(vec![Fe13::new(7), Fe13::new(3)]);
+        let p2 = Polynomial::new(vec![Fe13::new(5), Fe13::new(6)]);
+        let product = p1 * p2;
+        assert_eq!(
+            product.coefficients(),
+            &[Fe13::new(9), Fe13::new(5), Fe13::new(5)]
+        );
+    }
+
+    #[test]
+    fn test_polynomial_division_ff() {
+        let p1 = Polynomial::new(vec![Fe13::new(2), Fe13::new(5), Fe13::new(7), Fe13::new(3)]);
+        let p2 = Polynomial::new(vec![Fe13::new(1), Fe13::new(4), Fe13::new(1)]);
+        let quotient = p1 / p2;
+        assert_eq!(quotient.coefficients(), &[Fe13::new(8), Fe13::new(3)]);
+    }
+
+    #[test]
+    fn test_polynomial_division_ff_case_1() {
+        let p1 = Polynomial::new(vec![Fe13::new(6), Fe13::new(3), Fe13::new(10), Fe13::new(7)]);
+        let p2 = Polynomial::new(vec![Fe13::new(3), Fe13::new(2)]);
+        let (quotient, remainder) = p1.div_mod(&p2);
+        assert_eq!(
+            quotient.coefficients(),
+            &[Fe13::new(10), Fe13::new(3), Fe13::new(10)]
+        );
+        assert_eq!(remainder.coefficients(), &[Fe13::new(2)]);
+    }
+
+    #[test]
+    fn test_polynomial_division_ff_case_2() {
+        let p1 = Polynomial::new(vec![Fe13::new(8), Fe13::new(10), Fe13::new(12)]);
+        let p2 = Polynomial::new(vec![Fe13::new(4), Fe13::new(1)]);
+        let (quotient, remainder) = p1.div_mod(&p2);
+        assert_eq!(quotient.coefficients(), &[Fe13::new(1), Fe13::new(12)]);
+        assert_eq!(remainder.coefficients(), &[Fe13::new(4)]);
+    }
+
+    #[test]
+    fn test_polynomial_division_ff_case_3() {
+        let p1 = Polynomial::new(vec![Fe13::new(3), Fe13::new(5)]);
+        let p2 = Polynomial::new(vec![Fe13::new(6)]);
+        let (quotient, remainder) = p1.div_mod(&p2);
+        assert_eq!(quotient.coefficients(), &[Fe13::new(7), Fe13::new(3)]);
+        assert_eq!(remainder.coefficients(), &[Fe13::new(0)]);
     }
 }
