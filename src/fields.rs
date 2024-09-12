@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use derive_lib::polynomial_inverse;
 use num_bigint::BigInt;
-use num_traits::{FromPrimitive, One, ToPrimitive};
+use num_traits::{FromPrimitive, One, ToPrimitive, Zero};
 
 use crate::{
     field_element::FieldElement,
@@ -30,14 +30,12 @@ impl FiniteField for Ff13 {
 }
 
 impl NonExtendedField for Ff13 {
-    fn to_bits_be(s: i16) -> Vec<u8> {
+    fn to_bits(s: i16) -> Vec<bool> {
         let max = i16::BITS - s.leading_zeros();
-
-        let mut res = vec![0u8; max.try_into().unwrap()];
-        for i in (0..max).rev() {
-            res[i as usize] = (s >> i & 1) as u8;
+        let mut res = vec![false; max as usize];
+        for i in 0..max {
+            res[i as usize] = (s >> (max - 1 - i) & 1) != 0;
         }
-
         res
     }
 
@@ -117,14 +115,12 @@ impl FiniteField for FfBn254 {
 }
 
 impl NonExtendedField for FfBn254 {
-    fn to_bits_be(s: BigInt) -> Vec<u8> {
+    fn to_bits(s: BigInt) -> Vec<bool> {
         let max = s.bits();
-
-        let mut res = vec![0u8; max.try_into().unwrap()];
-        for i in (0..max).rev() {
-            res[i as usize] = (s.clone() >> i & BigInt::one()).to_u8().unwrap();
+        let mut res = vec![false; max as usize];
+        for i in 0..max {
+            res[i as usize] = (s.clone() >> (max - 1 - i) & BigInt::one()) != BigInt::zero();
         }
-
         res
     }
 

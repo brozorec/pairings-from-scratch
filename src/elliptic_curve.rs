@@ -85,7 +85,7 @@ impl<E: EllipticCurve> AffinePoint<E> {
     pub fn double(&self) -> Self {
         match self {
             AffinePoint::XY(x, y) => {
-                // explain why from claude
+                // the doubled point 2P will be the point at infinity if and only if y = 0
                 if y.is_zero() {
                     return Self::Infinity;
                 }
@@ -137,20 +137,14 @@ impl<E: EllipticCurve> Add for AffinePoint<E> {
             return Self::Infinity;
         }
 
-        match self {
-            AffinePoint::XY(x1, y1) => {
-                if let AffinePoint::XY(x2, y2) = other {
-                    let m = (y2 - y1.clone()) / (x2.clone() - x1.clone());
-                    let x = m.clone() * m.clone() - x1.clone() - x2.clone();
-                    let y = y1 + m * (x.clone() - x1);
-                    Self::new_xy(x, -y)
-                } else {
-                    // other == Infinity
-                    Self::new_xy(x1, y1)
-                }
+        match (self.clone(), other) {
+            (AffinePoint::Infinity, p) | (p, AffinePoint::Infinity) => p,
+            (AffinePoint::XY(x1, y1), AffinePoint::XY(x2, y2)) => {
+                let slope = (y2 - y1.clone()) / (x2.clone() - x1.clone());
+                let x3 = slope.clone() * slope.clone() - x1.clone() - x2;
+                let y3 = slope * (x1 - x3.clone()) - y1;
+                Self::XY(x3, y3)
             }
-            // self == Infinity
-            _ => other,
         }
     }
 }
@@ -164,10 +158,10 @@ impl<E: EllipticCurve<ScalarField: NonExtendedField>> Mul<<E::ScalarField as Fin
         match self {
             AffinePoint::XY(x, y) => {
                 let mut point = Self::XY(x.clone(), y.clone());
-                for bit in E::ScalarField::to_bits_be(scalar).iter().rev().skip(1) {
+                for bit in E::ScalarField::to_bits(scalar).iter().skip(1) {
                     point = point.double();
 
-                    if *bit == 1 {
+                    if *bit {
                         point = point + Self::XY(x.clone(), y.clone());
                     }
                 }

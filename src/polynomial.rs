@@ -4,7 +4,7 @@ use std::ops::{Add, Div, Mul, Neg, Rem, Sub};
 use crate::field_element::FieldElement;
 use crate::finite_field::FiniteField;
 
-pub trait AbstractCoeff:
+pub trait Coefficient:
     Clone
     + Default
     + PartialEq
@@ -17,7 +17,7 @@ pub trait AbstractCoeff:
 {
 }
 
-impl<T> AbstractCoeff for T where
+impl<T> Coefficient for T where
     T: Clone
         + Default
         + PartialEq
@@ -31,35 +31,38 @@ impl<T> AbstractCoeff for T where
 }
 
 #[derive(Clone, Default, Debug)]
-pub struct Polynomial<T>(Vec<T>);
+pub struct Polynomial<C: Coefficient>(Vec<C>);
 
-impl<T: AbstractCoeff> Polynomial<T> {
+impl<C: Coefficient> Polynomial<C> {
     /// Creates a new polynomial, trimming trailing zeros.
-    pub fn new(coeffs: Vec<T>) -> Self {
-        let leading = coeffs.iter().rposition(|c| c != &T::default()).unwrap_or(0);
+    pub fn new(coeffs: Vec<C>) -> Self {
+        let leading = coeffs.iter().rposition(|c| c != &C::default()).unwrap_or(0);
         let coefficients = &coeffs[..=leading];
         Self(coefficients.to_vec())
     }
 
-    pub fn from_coefficients(coeffs: &[T]) -> Self {
+    pub fn from_coefficients(coeffs: &[C]) -> Self {
         Self::new(coeffs.to_vec())
     }
 
     /// Returns a slice of the polynomial's coefficients.
-    pub fn coefficients(&self) -> &[T] {
+    #[inline]
+    pub fn coefficients(&self) -> &[C] {
         &self.0
     }
 
     /// Returns the coefficient of the highest-degree term.
-    pub fn leading_coefficient(&self) -> &T {
+    #[inline]
+    pub fn leading_coefficient(&self) -> &C {
         &self.coefficients()[self.degree()]
     }
 
     /// Calculates the degree of the polynomial.
+    #[inline]
     pub fn degree(&self) -> usize {
         self.coefficients()
             .iter()
-            .rposition(|coeff| coeff != &T::default())
+            .rposition(|coeff| coeff != &C::default())
             .unwrap_or(0)
     }
 
@@ -67,35 +70,35 @@ impl<T: AbstractCoeff> Polynomial<T> {
     pub fn is_zero(&self) -> bool {
         self.coefficients()
             .iter()
-            .all(|coeff| *coeff == T::default())
+            .all(|coeff| *coeff == C::default())
     }
 
     /// Performs polynomial long division.
     fn div_mod(&self, divisor: &Self) -> (Self, Self) {
-        let dividend = self.clone();
-        let n = dividend.degree() + divisor.degree() + 1;
-
-        let mut quotient = Polynomial::new(vec![T::default(); n]);
+        let mut quotient = Polynomial::new(vec![C::default()]);
         let mut remainder = self.clone();
 
         while remainder.degree() >= divisor.degree()
-            && *remainder.leading_coefficient() != T::default()
+            && *remainder.leading_coefficient() != C::default()
         {
-            let leading_coeff =
-                remainder.leading_coefficient().clone() / divisor.leading_coefficient().clone();
             let degree = remainder.degree() - divisor.degree();
-            let mut coeffs = vec![T::default(); degree + 1];
+            let mut coeffs = vec![C::default(); degree + 1];
+
+            let rem_coeff = remainder.leading_coefficient().clone();
+            let div_coeff = divisor.leading_coefficient().clone();
+            let leading_coeff = rem_coeff / div_coeff;
+
             coeffs[degree] = leading_coeff;
             let term = Polynomial::new(coeffs);
 
             quotient = quotient + term.clone();
-            remainder = remainder - (term * divisor.clone());
+            remainder = remainder - term * divisor.clone();
         }
         (quotient, remainder)
     }
 }
 
-impl<T: AbstractCoeff> PartialEq for Polynomial<T> {
+impl<T: Coefficient> PartialEq for Polynomial<T> {
     fn eq(&self, other: &Self) -> bool {
         if self.degree() != other.degree() {
             return false;
@@ -105,7 +108,7 @@ impl<T: AbstractCoeff> PartialEq for Polynomial<T> {
     }
 }
 
-impl<T: AbstractCoeff> Display for Polynomial<T> {
+impl<T: Coefficient> Display for Polynomial<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for (i, coeff) in self.0.iter().enumerate() {
             if *coeff != T::default() {
@@ -126,7 +129,7 @@ impl<T: AbstractCoeff> Display for Polynomial<T> {
     }
 }
 
-impl<T> FromIterator<T> for Polynomial<T> {
+impl<T: Coefficient> FromIterator<T> for Polynomial<T> {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
         Self(iter.into_iter().collect())
     }
@@ -140,7 +143,7 @@ impl<M: FiniteField> From<Vec<M::T>> for Polynomial<FieldElement<M>> {
     }
 }
 
-impl<A: AbstractCoeff, M: FiniteField<T = Self>> Into<FieldElement<M>> for Polynomial<A> {
+impl<A: Coefficient, M: FiniteField<T = Self>> Into<FieldElement<M>> for Polynomial<A> {
     fn into(self) -> FieldElement<M> {
         FieldElement::<M>::new(self)
     }
@@ -148,7 +151,7 @@ impl<A: AbstractCoeff, M: FiniteField<T = Self>> Into<FieldElement<M>> for Polyn
 
 // Implement operator overloading
 
-impl<T: AbstractCoeff> Add for Polynomial<T> {
+impl<T: Coefficient> Add for Polynomial<T> {
     type Output = Polynomial<T>;
 
     fn add(self, other: Polynomial<T>) -> Polynomial<T> {
@@ -166,7 +169,7 @@ impl<T: AbstractCoeff> Add for Polynomial<T> {
     }
 }
 
-impl<T: AbstractCoeff> Sub for Polynomial<T> {
+impl<T: Coefficient> Sub for Polynomial<T> {
     type Output = Polynomial<T>;
 
     fn sub(self, other: Polynomial<T>) -> Polynomial<T> {
@@ -174,7 +177,7 @@ impl<T: AbstractCoeff> Sub for Polynomial<T> {
     }
 }
 
-impl<T: AbstractCoeff> Mul for Polynomial<T> {
+impl<T: Coefficient> Mul for Polynomial<T> {
     type Output = Polynomial<T>;
 
     fn mul(self, other: Polynomial<T>) -> Polynomial<T> {
@@ -194,7 +197,7 @@ impl<T: AbstractCoeff> Mul for Polynomial<T> {
     }
 }
 
-impl<T: AbstractCoeff> Mul<T> for Polynomial<T> {
+impl<T: Coefficient> Mul<T> for Polynomial<T> {
     type Output = Polynomial<T>;
 
     fn mul(self, scalar: T) -> Polynomial<T> {
@@ -204,7 +207,7 @@ impl<T: AbstractCoeff> Mul<T> for Polynomial<T> {
     }
 }
 
-impl<T: AbstractCoeff> Neg for Polynomial<T> {
+impl<T: Coefficient> Neg for Polynomial<T> {
     type Output = Polynomial<T>;
 
     fn neg(self) -> Polynomial<T> {
@@ -213,7 +216,7 @@ impl<T: AbstractCoeff> Neg for Polynomial<T> {
     }
 }
 
-impl<T: AbstractCoeff> Div for Polynomial<T> {
+impl<T: Coefficient> Div for Polynomial<T> {
     type Output = Polynomial<T>;
 
     fn div(self, other: Polynomial<T>) -> Polynomial<T> {
@@ -221,7 +224,7 @@ impl<T: AbstractCoeff> Div for Polynomial<T> {
     }
 }
 
-impl<T: AbstractCoeff> Rem for Polynomial<T> {
+impl<T: Coefficient> Rem for Polynomial<T> {
     type Output = Polynomial<T>;
 
     fn rem(self, other: Polynomial<T>) -> Polynomial<T> {
@@ -231,7 +234,7 @@ impl<T: AbstractCoeff> Rem for Polynomial<T> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{finite_field::FiniteField, fields::Fe13};
+    use crate::{fields::Fe13, finite_field::FiniteField};
 
     use super::*;
 
@@ -325,7 +328,10 @@ mod tests {
         let p1 = Polynomial::new(vec![Fe13::new(1), Fe13::new(2), Fe13::new(9)]); // Represents 1 + 2x + 3x^2
         let p2 = Polynomial::new(vec![Fe13::new(3), Fe13::new(4), Fe13::new(5)]); // Represents 3 + 4x + 5x^2
         let sum = p1 + p2; // Should represent 4 + 6x + 8x^2
-        assert_eq!(sum.coefficients(), &[Fe13::new(4), Fe13::new(6), Fe13::new(1)]);
+        assert_eq!(
+            sum.coefficients(),
+            &[Fe13::new(4), Fe13::new(6), Fe13::new(1)]
+        );
     }
 
     #[test]
@@ -349,7 +355,12 @@ mod tests {
 
     #[test]
     fn test_polynomial_division_ff_case_1() {
-        let p1 = Polynomial::new(vec![Fe13::new(6), Fe13::new(3), Fe13::new(10), Fe13::new(7)]);
+        let p1 = Polynomial::new(vec![
+            Fe13::new(6),
+            Fe13::new(3),
+            Fe13::new(10),
+            Fe13::new(7),
+        ]);
         let p2 = Polynomial::new(vec![Fe13::new(3), Fe13::new(2)]);
         let (quotient, remainder) = p1.div_mod(&p2);
         assert_eq!(

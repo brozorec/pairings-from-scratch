@@ -62,7 +62,7 @@ pub trait FiniteField: Copy + Eq {
 pub trait NonExtendedField:
     FiniteField<T: Shr<usize, Output = Self::T> + BitAnd + Pow<usize, Output = Self::T>>
 {
-    fn to_bits_be(s: Self::T) -> Vec<u8>;
+    fn to_bits(s: Self::T) -> Vec<bool>;
 
     fn to_uint(s: Self::T) -> Option<usize>;
 

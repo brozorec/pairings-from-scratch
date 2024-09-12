@@ -45,13 +45,13 @@ pub trait Pairing: EllipticCurve<ScalarField: NonExtendedField> {
 
         let mut point = p.clone();
         let mut f = FieldElement::<Self::BaseField>::one();
-        let bits = Self::ScalarField::to_bits_be(Self::r());
-        for bit in bits.iter().rev().skip(1) {
+        let bits = Self::ScalarField::to_bits(Self::r());
+        for bit in bits.iter().skip(1) {
             let f_new = linefunc(&point, &point, &q);
             f = f.clone() * f * f_new;
             point = point.clone().double();
 
-            if *bit == 1 {
+            if *bit {
                 let f_new = linefunc(&point, &p, &q);
                 f = f * f_new;
                 point = point + p.clone()

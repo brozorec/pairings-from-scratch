@@ -34,8 +34,7 @@ impl<M: FiniteField> FieldElement<M> {
         Self::new(M::inverse(&self.0))
     }
 
-    // Montgomery ladder
-    // Powers of field elements can be computed with the square-and-multiply algorithm,
+    // Exponentiation is computed with the square-and-multiply algorithm,
     // which iterates over the bits in the expansion of the exponent,
     // squares an accumulator variable in each iteration,
     // and additionally multiplies it by the base element if the bit is set.
@@ -44,18 +43,18 @@ impl<M: FiniteField> FieldElement<M> {
             return Self::one();
         }
 
-        let mut r0 = Self::one();
-        let mut r1 = self.clone();
+        let mut acc = Self::one();
+        let base = self.clone();
 
-        for bit in S::to_bits_be(exp).iter() {
-            if *bit == 1 {
-                r0 = r1.clone() * r0;
+        for bit in S::to_bits(exp).iter() {
+            acc = acc.clone() * acc.clone();
+
+            if *bit {
+                acc = acc * base.clone();
             }
-
-            r1 = r1.clone() * r1.clone();
         }
 
-        r0
+        acc
     }
 }
 
@@ -72,6 +71,9 @@ impl<M: FiniteField> Debug for FieldElement<M> {
 }
 
 // Implement arithmetic operations for FieldElement
+
+/// Addition of two field elements is simply the sum of their values,
+/// followed by reduction modulo the field’s modulus.
 impl<M: FiniteField> Add for FieldElement<M> {
     type Output = Self;
 
@@ -80,6 +82,18 @@ impl<M: FiniteField> Add for FieldElement<M> {
     }
 }
 
+/// Negation in a finite field is defined as the
+/// additive inverse of an element where a + -a ≡ p mod p
+impl<M: FiniteField> Neg for FieldElement<M> {
+    type Output = Self;
+
+    fn neg(self) -> Self {
+        Self::new(M::modulus() - self.0)
+    }
+}
+
+/// Subtraction is equivalent to adding the negation of
+/// the second element to the first.
 impl<M: FiniteField> Sub for FieldElement<M> {
     type Output = Self;
 
@@ -88,6 +102,9 @@ impl<M: FiniteField> Sub for FieldElement<M> {
     }
 }
 
+/// Multiplication of two field elements follows the usual
+/// rules for integers, with the result reduced modulo the
+/// field’s modulus.
 impl<M: FiniteField> Mul for FieldElement<M> {
     type Output = Self;
 
@@ -96,19 +113,13 @@ impl<M: FiniteField> Mul for FieldElement<M> {
     }
 }
 
+/// Division is equivalent to multiplying the left-hand side
+/// by the multiplicative inverse of the right-hand side.
 impl<M: FiniteField> Div for FieldElement<M> {
     type Output = Self;
 
     fn div(self, rhs: Self) -> Self {
         self * rhs.inverse()
-    }
-}
-
-impl<M: FiniteField> Neg for FieldElement<M> {
-    type Output = Self;
-
-    fn neg(self) -> Self {
-        Self::new(M::modulus() - self.0)
     }
 }
 
@@ -173,10 +184,7 @@ mod tests {
         let element2: Fe13_2 = Polynomial::from(vec![5, 6]).into();
 
         let product = element1 * element2;
-        assert_eq!(
-            *product.value(),
-            Polynomial::new(vec![Fe13::new(12), Fe13::new(5)])
-        )
+        assert_eq!(*product.value(), Polynomial::from(vec![12, 5]).into())
     }
 
     #[test]
