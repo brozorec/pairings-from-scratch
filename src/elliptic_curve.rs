@@ -12,8 +12,9 @@ use crate::{
 };
 
 pub trait EllipticCurve: Clone + PartialEq {
+    // the base field is typically an extension field
     type BaseField: FiniteField;
-    type ScalarField: FiniteField;
+    type ScalarField: NonExtendedField;
 
     fn a() -> FieldElement<Self::BaseField>;
     fn b() -> FieldElement<Self::BaseField>;
@@ -21,18 +22,13 @@ pub trait EllipticCurve: Clone + PartialEq {
     fn embedding_degree() -> usize;
     fn generator() -> AffinePoint<Self>;
 
-    // numer of points in the extened curve
+    // number of points in the curve, defined over
+    // the base field
     fn order() -> <Self::ScalarField as FiniteField>::T;
 
-    // this biggest cofactor of the order of the NON-extended curve
+    // this biggest cofactor of the order of the curve,
+    // defined over the non-extended field
     fn r() -> <Self::ScalarField as FiniteField>::T;
-
-    fn pairing(p: &AffinePoint<Self>, q: &AffinePoint<Self>) -> FieldElement<Self::BaseField>
-    where
-        Self: Pairing,
-    {
-        Pairing::pairing(p, q)
-    }
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -105,10 +101,7 @@ impl<E: EllipticCurve> AffinePoint<E> {
         }
     }
 
-    pub fn trace_map(&self) -> Self
-    where
-        E::ScalarField: NonExtendedField,
-    {
+    pub fn trace_map(&self) -> Self {
         match self {
             AffinePoint::XY(x, y) => {
                 let mut point = AffinePoint::XY(x.clone(), y.clone());
@@ -149,15 +142,15 @@ impl<E: EllipticCurve> Add for AffinePoint<E> {
     }
 }
 
-impl<E: EllipticCurve<ScalarField: NonExtendedField>> Mul<<E::ScalarField as FiniteField>::T>
-    for AffinePoint<E>
-{
+/// Multiplication by a scalar
+impl<E: EllipticCurve> Mul<<E::ScalarField as FiniteField>::T> for AffinePoint<E> {
     type Output = AffinePoint<E>;
 
     fn mul(self, scalar: <E::ScalarField as FiniteField>::T) -> Self::Output {
         match self {
             AffinePoint::XY(x, y) => {
                 let mut point = Self::XY(x.clone(), y.clone());
+                // Double-and-Add algorithm
                 for bit in E::ScalarField::to_bits(scalar).iter().skip(1) {
                     point = point.double();
 
@@ -183,7 +176,13 @@ impl<E: EllipticCurve> Neg for AffinePoint<E> {
     }
 }
 
-pub fn get_all_points<E: EllipticCurve<ScalarField: NonExtendedField>>() -> Vec<AffinePoint<E>> {
+impl<E: EllipticCurve + Pairing> AffinePoint<E> {
+    pub fn pairing(&self, q: &Self) -> FieldElement<E::BaseField> {
+        E::tate_pairing(self, q)
+    }
+}
+
+pub fn get_all_points<E: EllipticCurve>() -> Vec<AffinePoint<E>> {
     let max = E::ScalarField::to_uint(E::order()).unwrap();
     let mut result = vec![E::generator(); max];
     let mut acc = E::generator();
