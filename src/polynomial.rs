@@ -151,6 +151,7 @@ impl<A: Coefficient, M: FiniteField<T = Self>> Into<FieldElement<M>> for Polynom
 
 // Implement operator overloading
 
+/// Adds corresponding coefficients of two polynomials
 impl<T: Coefficient> Add for Polynomial<T> {
     type Output = Polynomial<T>;
 
@@ -169,6 +170,7 @@ impl<T: Coefficient> Add for Polynomial<T> {
     }
 }
 
+/// Implemented as addition with the negation of the second polynomial.
 impl<T: Coefficient> Sub for Polynomial<T> {
     type Output = Polynomial<T>;
 
@@ -177,6 +179,7 @@ impl<T: Coefficient> Sub for Polynomial<T> {
     }
 }
 
+/// Performs polynomial multiplication by convolving the coefficients.
 impl<T: Coefficient> Mul for Polynomial<T> {
     type Output = Polynomial<T>;
 
@@ -197,6 +200,7 @@ impl<T: Coefficient> Mul for Polynomial<T> {
     }
 }
 
+/// Polynomial multiplication by a scalar.
 impl<T: Coefficient> Mul<T> for Polynomial<T> {
     type Output = Polynomial<T>;
 
@@ -207,6 +211,7 @@ impl<T: Coefficient> Mul<T> for Polynomial<T> {
     }
 }
 
+/// Negates each coefficient of the polynomial.
 impl<T: Coefficient> Neg for Polynomial<T> {
     type Output = Polynomial<T>;
 
@@ -216,6 +221,7 @@ impl<T: Coefficient> Neg for Polynomial<T> {
     }
 }
 
+/// Uses div_mod to perform polynomial division, returning the quotient.
 impl<T: Coefficient> Div for Polynomial<T> {
     type Output = Polynomial<T>;
 
@@ -224,6 +230,7 @@ impl<T: Coefficient> Div for Polynomial<T> {
     }
 }
 
+/// Also uses div_mod, but returns the remainder instead of the quotient.
 impl<T: Coefficient> Rem for Polynomial<T> {
     type Output = Polynomial<T>;
 

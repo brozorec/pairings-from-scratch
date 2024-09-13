@@ -44,13 +44,12 @@ impl<M: FiniteField> FieldElement<M> {
         }
 
         let mut acc = Self::one();
-        let base = self.clone();
 
         for bit in S::to_bits(exp).iter() {
             acc = acc.clone() * acc.clone();
 
             if *bit {
-                acc = acc * base.clone();
+                acc = acc * self.clone();
             }
         }
 
@@ -184,7 +183,7 @@ mod tests {
         let element2: Fe13_2 = Polynomial::from(vec![5, 6]).into();
 
         let product = element1 * element2;
-        assert_eq!(*product.value(), Polynomial::from(vec![12, 5]).into())
+        assert_eq!(product, Polynomial::from(vec![12, 5]).into())
     }
 
     #[test]
@@ -221,12 +220,12 @@ mod tests {
     fn test_ext_finite_field_inverse() {
         let ext_field_element: Fe13_2 = Polynomial::from(vec![3, 5]).into();
         let inverse = ext_field_element.inverse();
-        assert_eq!(*inverse.value(), Polynomial::from(vec![6, 3]));
+        assert_eq!(inverse, Polynomial::from(vec![6, 3]).into());
 
         // Multiply the element by its inverse and check if we get the identity element
         let product = inverse * ext_field_element;
-        let identity = Polynomial::new(vec![Fe13::one()]);
-        assert_eq!(*product.value(), identity);
+        let identity = Polynomial::new(vec![Fe13::one()]).into();
+        assert_eq!(product, identity);
     }
 
     #[test]
