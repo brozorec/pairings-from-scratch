@@ -4,6 +4,7 @@ use crate::{
     elliptic_curve::{AffinePoint, EllipticCurve},
     field_element::FieldElement,
     finite_field::{FiniteField, NonExtendedField},
+    logger::{log_table_row, log_table_titles},
 };
 
 pub fn dist_relationship<E: EllipticCurve>(
@@ -55,15 +56,20 @@ pub trait Pairing: EllipticCurve {
         let mut f = FieldElement::<Self::BaseField>::one();
 
         let bits = Self::ScalarField::to_bits(Self::r());
+        log_table_titles();
         for bit in bits.iter().skip(1) {
             let f_new = dist_relationship(&point, &point, &q);
-            f = f.clone() * f * f_new;
+            f = f.clone() * f * f_new.clone();
             point = point.clone().double();
+
+            log_table_row(*bit, &f_new, &f, &point);
 
             if *bit {
                 let f_new = dist_relationship(&point, &p, &q);
-                f = f * f_new;
-                point = point + p.clone()
+                f = f * f_new.clone();
+                point = point + p.clone();
+
+                log_table_row(*bit, &f_new, &f, &point);
             }
         }
 
