@@ -44,7 +44,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "pairings"
+name = "pairings-from-scratch"
 version = "0.1.0"
 dependencies = [
  "derive-lib",

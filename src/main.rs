@@ -1,18 +1,6 @@
-#![allow(unused)]
-
-use crate::{
-    curves::TinyJJ, elliptic_curve::AffinePoint, fields::Fe13_4, pairing::Pairing,
-    polynomial::Polynomial,
+use pairings_from_scratch::{
+    curves::TinyJJ, elliptic_curve::AffinePoint, fields::Fe13_4, polynomial::Polynomial,
 };
-
-mod curves;
-mod elliptic_curve;
-mod field_element;
-mod fields;
-mod finite_field;
-mod pairing;
-mod polynomial;
-mod logger;
 
 fn main() {
     let p = AffinePoint::<TinyJJ>::new_xy(
