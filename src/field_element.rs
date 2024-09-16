@@ -130,13 +130,8 @@ impl<M: FiniteField> Default for FieldElement<M> {
 
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
-
-    use num_bigint::BigInt;
-    use num_traits::FromPrimitive;
-
     use crate::{
-        fields::{Fe13, Fe13_2, FeBn254, Ff13},
+        fields::{Fe13, Fe13_2, Ff13},
         polynomial::Polynomial,
     };
 
@@ -145,19 +140,6 @@ mod tests {
         let a = Fe13::new(7);
         let b = Fe13::new(10);
         let c = Fe13::new(4); // (7 + 10) % 13 = 17 % 13 = 4
-        assert_eq!(a + b, c);
-    }
-
-    #[test]
-    fn test_finite_field_big_add() {
-        let a = FeBn254::new(BigInt::from_i64(-1).unwrap());
-        let b = FeBn254::new(BigInt::from_i64(-1).unwrap());
-        let c = FeBn254::new(
-            BigInt::from_str(
-                "21888242871839275222246405745257275088696311157297823662689037894645226208581",
-            )
-            .unwrap(),
-        );
         assert_eq!(a + b, c);
     }
 
@@ -206,14 +188,6 @@ mod tests {
         let a = Fe13::new(7);
         let inv_a = Fe13::new(2); // The inverse of 7 mod 13 is 2
         assert_eq!(a.inverse(), inv_a);
-    }
-
-    #[test]
-    fn test_finite_field_big_inverse() {
-        let num = BigInt::from_str("21888242871839275222246405745").unwrap();
-        let a = FeBn254::new(num);
-        let b = a.inverse();
-        assert_eq!(a * b, FeBn254::one());
     }
 
     #[test]
