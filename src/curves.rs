@@ -1,7 +1,7 @@
 use crate::{
     elliptic_curve::{AffinePoint, EllipticCurve},
     field_element::FieldElement,
-    fields::{Ff13, Ff13_4},
+    fields::{Ff13, Ff13_4, Ff43_6, Ff43},
     finite_field::FiniteField,
     pairing::Pairing,
     polynomial::Polynomial,
@@ -43,4 +43,39 @@ impl EllipticCurve for TinyJJ {
     }
 }
 
-impl Pairing for TinyJJ {}
+// BLS6_6
+#[derive(Debug, Clone, PartialEq)]
+pub struct MoonMath;
+
+impl EllipticCurve for MoonMath {
+    type BaseField = Ff43_6;
+    type ScalarField = Ff43;
+
+    fn a() -> FieldElement<Self::BaseField> {
+        Polynomial::from(vec![0]).into()
+    }
+
+    fn b() -> FieldElement<Self::BaseField> {
+        Polynomial::from(vec![6]).into()
+    }
+
+    fn generator() -> AffinePoint<Self> {
+        // 7*v^2, 16*v^3
+        AffinePoint::new_xy(
+            Polynomial::from(vec![0, 0, 7]).into(),
+            Polynomial::from(vec![0, 0, 0, 16]).into(),
+        )
+    }
+
+    fn embedding_degree() -> usize {
+        6
+    }
+
+    fn order() -> <Self::ScalarField as FiniteField>::T {
+        6321251664
+    }
+
+    fn r() -> <Self::ScalarField as FiniteField>::T {
+        13
+    }
+}

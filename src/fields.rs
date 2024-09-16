@@ -10,6 +10,8 @@ use crate::{
     polynomial::Polynomial,
 };
 
+// ---------------- Ff 13 ---------------------
+
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub struct Ff13;
 
@@ -92,6 +94,73 @@ impl FiniteField for Ff13_4 {
     fn inverse(value: &Self::T) -> Self::T;
 }
 
+// ---------------- Ff 43 ---------------------
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+pub struct Ff43;
+
+impl FiniteField for Ff43 {
+    type T = i64;
+
+    fn modulus() -> Self::T {
+        43
+    }
+
+    fn one() -> Self::T {
+        1
+    }
+
+    fn zero() -> Self::T {
+        0
+    }
+}
+
+impl NonExtendedField for Ff43 {
+    fn to_bits(s: i64) -> Vec<bool> {
+        let max = i64::BITS - s.leading_zeros();
+        let mut res = vec![false; max as usize];
+        for i in 0..max {
+            res[i as usize] = (s >> (max - 1 - i) & 1) != 0;
+        }
+        res
+    }
+
+    fn to_uint(s: Self::T) -> Option<usize> {
+        Some(s.try_into().unwrap())
+    }
+
+    fn from_uint(s: usize) -> Option<Self::T> {
+        Some(s.try_into().unwrap())
+    }
+}
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+pub struct Ff43_6;
+
+impl FiniteField for Ff43_6 {
+    type T = Polynomial<Fe43>;
+
+    fn modulus() -> Self::T {
+        // 
+        Polynomial::from(vec![6, 0, 0, 0, 0, 0, 1])
+    }
+
+    fn zero() -> Self::T {
+        Polynomial::new(vec![Fe43::zero()])
+    }
+
+    fn one() -> Self::T {
+        Polynomial::new(vec![Fe43::one()])
+    }
+
+    #[polynomial_inverse]
+    fn inverse(value: &Self::T) -> Self::T;
+}
+
+
+
+// ---------------- Ff Bn254 ---------------------
+
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub struct FfBn254;
 
@@ -136,4 +205,6 @@ impl NonExtendedField for FfBn254 {
 pub type Fe13 = FieldElement<Ff13>;
 pub type Fe13_2 = FieldElement<Ff13_2>;
 pub type Fe13_4 = FieldElement<Ff13_4>;
+pub type Fe43 = FieldElement<Ff43>;
+pub type Fe43_6 = FieldElement<Ff43_6>;
 pub type FeBn254 = FieldElement<FfBn254>;

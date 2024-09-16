@@ -104,15 +104,17 @@ pub trait Pairing: EllipticCurve {
     }
 }
 
+impl<T> Pairing for T where T: EllipticCurve {}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::{
-        curves::TinyJJ, elliptic_curve::EllipticCurve, fields::Fe13_4, polynomial::Polynomial,
+        curves::{TinyJJ, MoonMath}, elliptic_curve::EllipticCurve, fields::{Fe13_4, Fe43_6}, polynomial::Polynomial,
     };
 
     #[test]
-    fn test_pairing() {
+    fn test_pairing_tinyjj_1() {
         let p = AffinePoint::<TinyJJ>::new_xy(
             Polynomial::from(vec![8]).into(),
             Polynomial::from(vec![8]).into(),
@@ -122,6 +124,35 @@ mod tests {
             Polynomial::from(vec![0, 10, 0, 5]).into(),
         );
         let result: Fe13_4 = Polynomial::from(vec![3, 7, 7, 6]).into();
+        assert!(result == Pairing::tate_pairing(&p, &q));
+    }
+
+    #[test]
+    fn test_pairing_tinyjj_2() {
+        let p = AffinePoint::<TinyJJ>::new_xy(
+            Polynomial::from(vec![8]).into(),
+            Polynomial::from(vec![5]).into(),
+        );
+        let q = AffinePoint::<TinyJJ>::new_xy(
+            Polynomial::from(vec![7, 0, 9]).into(),
+            Polynomial::from(vec![0, 11, 0, 1]).into(),
+        );
+        let result: Fe13_4 = Polynomial::from(vec![3, 4, 6, 4]).into();
+        assert!(result == Pairing::tate_pairing(&p, &q));
+    }
+
+    #[test]
+    fn test_pairing_moonmath_1() {
+        let p = AffinePoint::<MoonMath>::new_xy(
+            Polynomial::from(vec![27]).into(),
+            Polynomial::from(vec![34]).into(),
+        );
+        // 10*v^2 : 28*v^3
+        let q = AffinePoint::<MoonMath>::new_xy(
+            Polynomial::from(vec![0, 0, 10]).into(),
+            Polynomial::from(vec![0, 0, 0, 28]).into(),
+        );
+        let result: Fe43_6 = Polynomial::from(vec![9, 4, 27, 12, 40, 21]).into();
         assert!(result == Pairing::tate_pairing(&p, &q));
     }
 
