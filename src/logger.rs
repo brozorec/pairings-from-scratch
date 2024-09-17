@@ -27,19 +27,18 @@ pub fn log_table_titles() {
 }
 
 pub fn log_table_row<E: EllipticCurve>(
-    bit: bool,
+    bit: &str,
+    op: &str,
     f_new: &FieldElement<E::BaseField>,
     f: &FieldElement<E::BaseField>,
     point: &AffinePoint<E>,
 ) {
     if is_log_mode() {
-        let bit_str = if bit { "1" } else { "0" };
-        let op = if bit { "add" } else { "double" };
         match point {
             AffinePoint::XY(x, y) => {
                 println!(
                     "{: <5} | {: <10} | {: <25} | {: <25} | ({:?}, {:?})",
-                    bit_str,
+                    bit,
                     op,
                     f_new.to_string(),
                     f.to_string(),
@@ -50,7 +49,7 @@ pub fn log_table_row<E: EllipticCurve>(
             AffinePoint::Infinity => {
                 println!(
                     "{: <5} | {: <10} | {: <25} | {: <25} | Infinity ",
-                    bit_str,
+                    bit,
                     op,
                     f_new.to_string(),
                     f.to_string()

@@ -62,14 +62,14 @@ pub trait Pairing: EllipticCurve {
             f = f.clone() * f * f_new.clone();
             point = point.clone().double();
 
-            log_table_row(*bit, &f_new, &f, &point);
+            log_table_row(&(*bit as u8).to_string(), "double", &f_new, &f, &point);
 
             if *bit {
                 let f_new = dist_relationship(&point, &p, &q);
                 f = f * f_new.clone();
                 point = point + p.clone();
 
-                log_table_row(*bit, &f_new, &f, &point);
+                log_table_row("", "add", &f_new, &f, &point);
             }
         }
 
